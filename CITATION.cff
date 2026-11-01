@@ -1,8 +1,19 @@
 cff-version: 1.2.0
-message: "If you use this dataset, replication code, or framework, please cite it as below."
+message: "If you use these data or code, please cite them as below."
+title: "Curated Voice: Communicative Inequality, Platform Power, and Automation in NFT and DeFi Communities on X (data and code)"
 authors:
-  - name: "Anonymous (under peer review)"
-title: "Code and annotated data for 'Curated Voice: Communicative Inequality and Platform Power in NFT and DeFi Communities on X'"
-version: 1.0.0
-date-released: 2026-05-18
-url: "https://github.com/Joceelin/Curated-Voice-Data"
+  - family-names: Alamsyah
+    given-names: Andry
+    orcid: "https://orcid.org/0000-0001-5106-7561"
+    affiliation: "School of Economics and Business, Telkom University"
+  - family-names: Juono
+    given-names: Wynona Jocelin
+    orcid: "https://orcid.org/0009-0002-0524-3768"
+    affiliation: "School of Economics and Business, Telkom University"
+  - family-names: Ramadhani
+    given-names: Dian Puteri
+    orcid: "https://orcid.org/0000-0003-0821-8429"
+    affiliation: "School of Economics and Business, Telkom University"
+repository-code: "https://github.com/andrybrew/Curated-Voice-Data"
+license: CC-BY-4.0
+date-released: 2026-11-01
