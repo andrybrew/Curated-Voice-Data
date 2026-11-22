@@ -17,8 +17,9 @@ data/
 code/
   attention_sources.py       Tables 1 to 3, Figure 1 and Supplementary Table S3
   discourse_checks.py        Supplementary Table S4 (discourse addressed to top accounts vs comparison groups)
+  figures.py                 Figures 2 to 9, plus the rank-group, monthly and wording analyses behind Figures 3, 7 and 8
   curated_voice_pipeline.py  Gini benchmarks (Table 1) and Supplementary Table S5; also provides shared functions
-results/                     outputs of attention_sources.py and discourse_checks.py, as reported in the manuscript
+results/                     outputs of the scripts above, as reported in the manuscript (figures in results/figures)
 ```
 
 ## Data
@@ -37,10 +38,11 @@ cd code
 python attention_sources.py --data ../data/v2 --out ../results
 python discourse_checks.py --data ../data/v2 --out ../results --spec main
 python discourse_checks.py --data ../data/v2 --out ../results --spec strict
+python figures.py --data ../data/v2 --edges ../data/edges.csv.gz --out ../results
 python curated_voice_pipeline.py --data ../data --out ../results/pipeline
 ```
 
-`attention_sources.py` runs in under a minute. Each run of `discourse_checks.py` takes roughly 20 to 30 minutes; `curated_voice_pipeline.py` takes 30 to 40 minutes (use `--B 200` for a quick check). All resampling uses a fixed random seed (20260821).
+Run the scripts in this order, because `figures.py` reads the outputs of the first two. `attention_sources.py` and `figures.py` each run in under a few minutes. Each run of `discourse_checks.py` takes roughly 20 to 30 minutes; `curated_voice_pipeline.py` takes 30 to 40 minutes (use `--B 200` for a quick check). All resampling uses a fixed random seed (20260821).
 
 ## Definitions
 
