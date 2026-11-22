@@ -1,7 +1,7 @@
-"""Additional analyses and Figures 2 to 9 of the manuscript.
+"""Additional analyses and Figures 2 and 4 to 10 of the manuscript.
 
-Writes rank_buckets.csv (Figure 3), monthly.csv (Figure 7) and words_incentivized_vs_organic.csv (Figure 8)
-to the results folder, and all figures to results/figures. Run discourse_checks.py --spec main first (Figure 9).
+Writes rank_buckets.csv (Figure 4), monthly.csv (Figure 8) and words_incentivized_vs_organic.csv (Figure 9)
+to the results folder, and all figures to results/figures. Run discourse_checks.py --spec main first (Figure 10).
 
 Usage: python figures.py --data ../data/v2 --edges ../data/edges.csv.gz --out ../results
 """
@@ -47,7 +47,7 @@ def main():
             for h in m: r[h] += 1; sc[h][source(m, h, au)] += 1
         raw[c], src[c] = r, sc
 
-    # ---- Figure 3: non-organic share by rank group
+    # ---- Figure 4: non-organic share by rank group
     rows = []
     for c in ('NFT', 'DeFi'):
         order = [h for h, _ in raw[c].most_common()]
@@ -62,9 +62,9 @@ def main():
         for i, v in enumerate(d.nonorganic_pct): ax.text(i, v + 0.8, f'{v:.0f}%', ha='center', fontsize=8.5)
         ax.set_xticks(x, d.group); ax.set_title(c, loc='left', weight='bold'); ax.set_xlabel('Accounts grouped by rank of attention received')
     axes[0].set_ylabel('Non-organic share of attention (%)'); axes[0].legend(frameon=False); axes[0].set_ylim(0, 42)
-    save(fig, 'Figure3_Nonorganic_by_rank')
+    save(fig, 'Figure4_Nonorganic_by_rank')
 
-    # ---- Figure 4: sources of attention to the ten most-addressed accounts
+    # ---- Figure 5: sources of attention to the ten most-addressed accounts
     r = pd.read_csv(f'{a.out}/attention_sources_top10.csv')
     fig, axes = plt.subplots(1, 2, figsize=(10, 4.6))
     for ax, c in zip(axes, ('NFT', 'DeFi')):
@@ -73,9 +73,9 @@ def main():
             ax.barh(y, d[k], left=left, color=col, label=lab); left += d[k].values
         ax.set_xlim(0, 100); ax.set_title(f'{c}: ten most-addressed accounts', loc='left'); ax.set_xlabel('Share of tweets addressing the account (%)')
     axes[0].legend(frameon=False, loc='lower center', bbox_to_anchor=(1.05, -0.3), ncol=3)
-    save(fig, 'Figure4_Attention_sources_top10')
+    save(fig, 'Figure5_Attention_sources_top10')
 
-    # ---- Figure 5: who addresses @freeexyz and @blur_io
+    # ---- Figure 6: who addresses @freeexyz and @blur_io
     fig, axes = plt.subplots(1, 2, figsize=(9, 4.7))
     for ax, h, title in ((axes[0], 'freeexyz', '@freeexyz (NFT rank 3)'), (axes[1], 'blur_io', '@blur_io (NFT rank 7)')):
         s = t[(t.community == 'NFT') & t.ms.map(lambda m: h in m)]
@@ -87,9 +87,9 @@ def main():
         ax.set_xlim(-1.45, 1.45); ax.set_ylim(-1.45, 1.45); ax.set_aspect('equal'); ax.axis('off')
         ax.set_title(f'{title}\n{len(s):,} tweets from {n:,} accounts ({int(g.auto.sum())} automated)\n{s.automated_account.mean() * 100:.1f}% of tweets from automated accounts')
     axes[0].legend(handles=[Line2D([0], [0], color=k, lw=3, label=l) for k, l in ((AUT, 'Automated account'), (ORG, 'Human account'))], frameon=False, loc='lower center', bbox_to_anchor=(1.05, -0.1), ncol=2)
-    save(fig, 'Figure5_Freeexyz_vs_blur')
+    save(fig, 'Figure6_Freeexyz_vs_blur')
 
-    # ---- Figure 6: ranking by all attention vs organic attention only
+    # ---- Figure 7: ranking by all attention vs organic attention only
     org_rank = pd.read_csv(f'{a.out}/organic_top10.csv')
     fig, axes = plt.subplots(1, 2, figsize=(9.5, 4.6))
     for ax, c in zip(axes, ('NFT', 'DeFi')):
@@ -100,9 +100,9 @@ def main():
         for _, x in o.iterrows():
             new = not x.in_raw_top10; lab = f'@{x.account}' if not x.account.startswith('u_') else 'individual account'
             ax.text(1.02, x.organic_rank, f'{x.organic_rank}. {lab}', ha='left', va='center', fontsize=7.6, color='#2a7a3b' if new else 'black')
-    save(fig, 'Figure6_Ranking_change')
+    save(fig, 'Figure7_Ranking_change')
 
-    # ---- Figure 7: monthly shares
+    # ---- Figure 8: monthly shares
     t['month'] = pd.to_datetime(t.created_at, errors='coerce', format='mixed', utc=True).dt.month
     hmn = t[~t.automated_account].assign(inc=lambda x: x.ms.map(lambda m: bool(m & INFOFI)))
     mon = pd.concat({'incentivized_pct_of_human': hmn.groupby(['month', 'community']).inc.mean().unstack() * 100,
@@ -114,9 +114,9 @@ def main():
         axes[1].plot(mon.index, mon[('automated_pct', c)], ls, color=AUT, marker='o', ms=3, label=c)
     for ax, tt, yl in ((axes[0], 'Human tweets tagging a reward platform, 2025', '% of human tweets'), (axes[1], 'Tweets from automated accounts, 2025', '% of all tweets')):
         ax.set_xticks(range(1, 13), MONTHS); ax.set_title(tt, loc='left'); ax.set_ylabel(yl); ax.legend(frameon=False)
-    save(fig, 'Figure7_Monthly_trend')
+    save(fig, 'Figure8_Monthly_trend')
 
-    # ---- Figure 8: words in incentivized vs organic human tweets addressing the same non-reward accounts
+    # ---- Figure 9: words in incentivized vs organic human tweets addressing the same non-reward accounts
     cvp.DOMAIN_STOPWORDS.update(cvp.NAME_TOKENS | {'giverep', 'kaito', 'kaitoai', 'cookie', 'cookiedotfun', 'wallchain', 'rep'})
     hh = hmn[hmn.ms.map(lambda m: bool(m - INFOFI))].copy(); hh['tok'] = hh.text.map(cvp.preprocess)
     A = collections.Counter(w for l in hh[hh.inc].tok for w in l); B = collections.Counter(w for l in hh[~hh.inc].tok for w in l)
@@ -130,9 +130,9 @@ def main():
     for ax, dd, tt in ((axes[0], wd[wd.direction > 0].head(14).iloc[::-1], 'More frequent in incentivized tweets'), (axes[1], wd[wd.direction < 0].head(10).iloc[::-1], 'More frequent in organic tweets')):
         y = np.arange(len(dd)); ax.barh(y - 0.2, dd.per1000_incentivized, 0.4, color=INC, label='Incentivized'); ax.barh(y + 0.2, dd.per1000_organic, 0.4, color='#8c8c8c', label='Organic')
         ax.set_yticks(y, dd.word); ax.set_title(tt, loc='left'); ax.set_xlabel('Occurrences per 1,000 words')
-    axes[0].legend(frameon=False, loc='lower right'); save(fig, 'Figure8_Incentivized_vs_organic_words')
+    axes[0].legend(frameon=False, loc='lower right'); save(fig, 'Figure9_Incentivized_vs_organic_words')
 
-    # ---- Figure 9: content versus volume
+    # ---- Figure 10: content versus volume
     pth = f'{a.out}/discourse_random_sets_main.csv'
     if os.path.exists(pth):
         p = pd.read_csv(pth); g = pd.read_csv(f'{a.out}/discourse_groups_main.csv')
@@ -145,7 +145,7 @@ def main():
         x = np.arange(2); axes[2].bar(x - 0.18, [vol[c][0] for c in ('NFT', 'DeFi')], 0.36, color=RED, label='Three most-addressed')
         axes[2].bar(x + 0.18, [vol[c][1] for c in ('NFT', 'DeFi')], 0.36, color='#8fa4c8', label='Three random (median)')
         axes[2].set_xticks(x, ['NFT', 'DeFi']); axes[2].set_title('Volume', loc='left'); axes[2].set_ylabel('Share of community tweets (%)'); axes[2].legend(frameon=False, fontsize=7.5)
-        save(fig, 'Figure9_Content_vs_volume')
+        save(fig, 'Figure10_Content_vs_volume')
     print(b.round(1).to_string(index=False)); print(mon.round(2).to_string())
 
 if __name__ == '__main__':
