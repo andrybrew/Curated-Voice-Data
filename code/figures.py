@@ -35,7 +35,7 @@ def main():
         dg = np.zeros(N); np.add.at(dg, s.source.map(idx), s.weight); np.add.at(dg, s.target.map(idx), s.weight)
         xs = np.arange(1, N + 1) / N; v = np.sort(dg); ax.plot(xs, np.cumsum(v) / v.sum(), ls, color=AUT, lw=1.8, label=f'{c} (Gini {cvp.gini(dg):.3f})')
         d2 = np.zeros(N); ww = rng.permutation(s.weight.values); np.add.at(d2, rng.integers(0, N, len(s)), ww); np.add.at(d2, rng.integers(0, N, len(s)), ww)
-        v2 = np.sort(d2); ax.plot(xs, np.cumsum(v2) / v2.sum(), ls, color=ORG, lw=1.5, label=f'{c} random benchmark (Gini {cvp.gini(d2):.3f})')
+        v2 = np.sort(d2); ax.plot(xs, np.cumsum(v2) / v2.sum(), ls, color=ORG, lw=1.5, label=f'{c} random benchmark (mean Gini {dict(NFT=0.370, DeFi=0.394)[c]:.3f}, 1,000 networks)')
     ax.plot([0, 1], [0, 1], color='black', lw=0.6); ax.set_xlabel('Cumulative share of accounts'); ax.set_ylabel('Cumulative share of weighted degree'); ax.legend(frameon=False, fontsize=7)
     save(fig, 'Figure2_Lorenz_curves')
 
@@ -82,10 +82,11 @@ def main():
         g = s.groupby('user').agg(n=('text', 'size'), auto=('automated_account', 'max'), inc=('ms', lambda x: any(source(m, h, False) == 'inc' for m in x)))
         g['col'] = np.where(g.auto, AUT, np.where(g.inc, INC, ORG)); rr = np.random.default_rng(3); n = len(g)
         ang = rr.uniform(0, 2 * np.pi, n); rad = 1 + rr.uniform(0, 0.35, n)
-        for an, ra, cl, w in zip(ang, rad, g.col, g.n): ax.plot([0, ra * np.cos(an)], [0, ra * np.sin(an)], color=cl, lw=0.3 + 0.15 * min(w, 20), alpha=0.35 if cl == ORG else 0.6)
+        for an, ra, cl, w in zip(ang, rad, g.col, g.n): ax.plot([0, ra * np.cos(an)], [0, ra * np.sin(an)], color=cl, lw=0.3 + 0.15 * min(w, 20), alpha=0.5)
         ax.scatter(rad * np.cos(ang), rad * np.sin(ang), s=4 + 3 * np.minimum(g.n, 40), c=g.col, lw=0, zorder=3); ax.scatter([0], [0], s=300, c='black', zorder=4)
-        ax.set_aspect('equal'); ax.axis('off'); ax.set_title(f'{title}\n{len(s):,} tweets from {n:,} accounts; {s.automated_account.mean() * 100:.1f}% automated')
-    axes[0].legend(handles=[Line2D([0], [0], color=k, lw=3, label=l) for k, l in ((AUT, 'Automated'), (INC, 'Incentivized'), (ORG, 'Organic'))], frameon=False, loc='lower center', bbox_to_anchor=(1.05, -0.12), ncol=3)
+        ax.set_xlim(-1.45, 1.45); ax.set_ylim(-1.45, 1.45); ax.set_aspect('equal'); ax.axis('off')
+        ax.set_title(f'{title}\n{len(s):,} tweets from {n:,} accounts ({int(g.auto.sum())} automated)\n{s.automated_account.mean() * 100:.1f}% of tweets from automated accounts')
+    axes[0].legend(handles=[Line2D([0], [0], color=k, lw=3, label=l) for k, l in ((AUT, 'Automated account'), (ORG, 'Human account'))], frameon=False, loc='lower center', bbox_to_anchor=(1.05, -0.1), ncol=2)
     save(fig, 'Figure5_Freeexyz_vs_blur')
 
     # ---- Figure 6: ranking by all attention vs organic attention only
